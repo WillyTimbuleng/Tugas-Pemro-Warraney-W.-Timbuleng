@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact — [Nama Kamu]</title>
+</head>
+<body bgcolor="#0d1b2a" text="#ffffff" link="#7eb8f7" vlink="#a0c8ff" alink="#ffffff">
+
+  <!-- ===== NAVBAR ===== -->
+  <table width="100%" cellpadding="12" cellspacing="0" bgcolor="#0a1520">
+    <tr>
+      <td><strong><font color="#7eb8f7" size="4">[Nama Kamu]</font></strong></td>
+      <td align="right">
+        <a href="index.html">Home</a>
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        <a href="gallery.html">Gallery</a>
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        <a href="blog.html">Blog</a>
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        <a href="contact.html"><b>Contact</b></a>
+      </td>
+    </tr>
+  </table>
+  <hr color="#2a4060">
+
+  <!-- ===== PAGE HEADER ===== -->
+  <br>
+  <table width="80%" align="center">
+    <tr>
+      <td>
+        <h1><font color="#7eb8f7">📬 Hubungi Saya</font></h1>
+        <p>Punya proyek menarik, pertanyaan, atau sekadar ingin menyapa? Saya senang mendengar dari kamu!</p>
+        <hr color="#2a4060">
+      </td>
+    </tr>
+  </table>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <table width="80%" align="center">
+    <tr>
+
+      <!-- KOLOM KIRI: INFO KONTAK -->
+      <td width="40%" valign="top">
+        <h2><font color="#7eb8f7">Info Kontak</font></h2>
+
+        <table cellpadding="10" cellspacing="0" width="100%" border="1" bordercolor="#2a4060">
+          <tr bgcolor="#132033">
+            <td colspan="2" align="center">
+              <br>
+              <img src="foto-saya.jpg" alt="Foto Profil" width="120" height="120" /><br><br>
+              <strong><font color="#7eb8f7">[Nama Kamu]</font></strong><br>
+              <font size="2">[Profesi / Jabatan]</font>
+              <br><br>
+            </td>
+          </tr>
+          <tr>
+            <td><font color="#7eb8f7">📧</font></td>
+            <td><a href="mailto:emailkamu@email.com">emailkamu@email.com</a></td>
+          </tr>
+          <tr>
+            <td><font color="#7eb8f7">📞</font></td>
+            <td>[+62 xxx-xxxx-xxxx]</td>
+          </tr>
+          <tr>
+            <td><font color="#7eb8f7">📍</font></td>
+            <td>[Kota, Provinsi, Indonesia]</td>
+          </tr>
+          <tr>
+            <td><font color="#7eb8f7">🕐</font></td>
+            <td>Senin–Jumat, 09.00–17.00 WITA</td>
+          </tr>
+        </table>
+
+        <br>
+        <h3><font color="#7eb8f7">Media Sosial</font></h3>
+        <table cellpadding="8" cellspacing="0" width="100%" border="1" bordercolor="#2a4060">
+          <tr bgcolor="#132033">
+            <td>💼 LinkedIn</td>
+            <td><a href="https://linkedin.com/in/namakamu" target="_blank">linkedin.com/in/namakamu</a></td>
+          </tr>
+          <tr>
+            <td>🐙 GitHub</td>
+            <td><a href="https://github.com/namakamu" target="_blank">github.com/namakamu</a></td>
+          </tr>
+          <tr bgcolor="#132033">
+            <td>📷 Instagram</td>
+            <td><a href="https://instagram.com/namakamu" target="_blank">@namakamu</a></td>
+          </tr>
+          <tr>
+            <td>🐦 Twitter/X</td>
+            <td><a href="https://twitter.com/namakamu" target="_blank">@namakamu</a></td>
+          </tr>
+        </table>
+      </td>
+
+      <td width="5%">&nbsp;</td>
+
+      <!-- KOLOM KANAN: FORM KONTAK -->
+      <td width="55%" valign="top">
+        <h2><font color="#7eb8f7">Kirim Pesan</font></h2>
+        <p>Isi form di bawah ini dan saya akan membalas dalam 1x24 jam.</p>
+
+        <form action="mailto:emailkamu@email.com" method="post" enctype="text/plain">
+          <table cellpadding="8" width="100%">
+            <tr>
+              <td colspan="2">
+                <label for="nama"><font color="#7eb8f7">Nama Lengkap *</font></label><br>
+                <input type="text" id="nama" name="Nama" size="50" placeholder="Nama lengkap kamu" required />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="email"><font color="#7eb8f7">Email *</font></label><br>
+                <input type="email" id="email" name="Email" size="50" placeholder="email@contoh.com" required />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="telp"><font color="#7eb8f7">No. Telepon</font></label><br>
+                <input type="tel" id="telp" name="Telepon" size="50" placeholder="+62 xxx-xxxx-xxxx" />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="subjek"><font color="#7eb8f7">Subjek *</font></label><br>
+                <input type="text" id="subjek" name="Subjek" size="50" placeholder="Perihal pesan kamu" required />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="topik"><font color="#7eb8f7">Topik</font></label><br>
+                <select id="topik" name="Topik" size="1">
+                  <option value="">-- Pilih Topik --</option>
+                  <option value="kolaborasi">Kolaborasi Proyek</option>
+                  <option value="freelance">Pekerjaan Freelance</option>
+                  <option value="pertanyaan">Pertanyaan Umum</option>
+                  <option value="lainnya">Lainnya</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="pesan"><font color="#7eb8f7">Pesan *</font></label><br>
+                <textarea id="pesan" name="Pesan" rows="7" cols="50" placeholder="Tuliskan pesanmu di sini...&#10;Semakin detail, semakin baik!" required></textarea>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <input type="submit" value="  Kirim Pesan →  " />
+                &nbsp;&nbsp;
+                <input type="reset" value="  Hapus Form  " />
+              </td>
+            </tr>
+          </table>
+        </form>
+
+        <br>
+        <table border="1" cellpadding="10" cellspacing="0" width="100%" bordercolor="#2a4060" bgcolor="#132033">
+          <tr>
+            <td>
+              <font size="2">
+                💡 <em>Form ini akan membuka aplikasi email di perangkat kamu. Alternatif lain,
+                kamu bisa langsung mengirim email ke
+                <a href="mailto:emailkamu@email.com">emailkamu@email.com</a>
+                atau menghubungi via media sosial di atas.</em>
+              </font>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <br><br>
+
+  <!-- ===== FOOTER ===== -->
+  <hr color="#2a4060">
+  <table width="100%" cellpadding="12">
+    <tr>
+      <td align="center">
+        <font color="#7eb8f7">&copy; 2026 <strong>[Nama Kamu]</strong>. Dibuat dengan ❤️ menggunakan HTML murni.</font><br>
+        <a href="index.html">← Kembali ke Home</a>
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        <a href="#top">↑ Kembali ke Atas</a>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
