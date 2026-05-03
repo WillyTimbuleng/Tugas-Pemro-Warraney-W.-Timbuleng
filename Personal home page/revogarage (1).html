@@ -1,0 +1,2099 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RevoGarage — Personal Automotive Page</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Barlow+Condensed:ital,wght@0,300;0,600;0,800;1,800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #040810;
+      --bg2:       #070e1c;
+      --surface:   #0b1628;
+      --surface2:  #0f1e38;
+      --blue:      #1a6fff;
+      --blue-mid:  #0d4fcc;
+      --blue-pale: #4d93ff;
+      --cyan:      #00d4ff;
+      --white:     #e8edf5;
+      --muted:     #5a728a;
+      --border:    rgba(26,111,255,0.18);
+      --glow:      0 0 40px rgba(26,111,255,0.35);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── SCANLINE OVERLAY ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.04) 2px,
+        rgba(0,0,0,0.04) 4px
+      );
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    .cursor { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999; }
+    .cursor-core {
+      width: 10px; height: 10px;
+      background: var(--cyan);
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      position: absolute; transform: translate(-50%,-50%);
+      transition: transform 0.08s;
+    }
+    .cursor-outer {
+      width: 40px; height: 40px;
+      border: 1.5px solid var(--blue-pale);
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      position: absolute; transform: translate(-50%,-50%) rotate(45deg);
+      transition: left 0.2s ease, top 0.2s ease, width 0.25s, height 0.25s;
+      opacity: 0.5;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 200;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 5rem;
+      background: rgba(4,8,16,0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.6rem; font-weight: 800; letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .nav-logo .logo-mark {
+      width: 32px; height: 32px; background: var(--blue);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; color: #fff;
+    }
+    .nav-logo span { color: var(--cyan); }
+
+    .nav-links { display: flex; gap: 3rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none; color: var(--muted);
+      font-size: 0.82rem; font-weight: 600; letter-spacing: 0.15em;
+      text-transform: uppercase; transition: color 0.25s;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .nav-links a:hover { color: var(--cyan); }
+
+    .nav-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 0.3rem 0.9rem; border-radius: 2px;
+      letter-spacing: 0.1em;
+      animation: blink 2s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0.3; } }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 7rem 5rem 4rem;
+      gap: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Background grid lines */
+    #hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(26,111,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26,111,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* Glow orb */
+    .hero-glow {
+      position: absolute; top: 20%; right: 10%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(26,111,255,0.2) 0%, transparent 70%);
+      pointer-events: none;
+      animation: pulse 4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{transform:scale(1);opacity:0.8} 50%{transform:scale(1.1);opacity:1} }
+
+    .hero-text { position: relative; z-index: 2; }
+
+    .hero-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--cyan); margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block;
+      width: 40px; height: 1px; background: var(--cyan);
+    }
+
+    .hero-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(3.5rem, 7vw, 6.5rem);
+      font-weight: 800; line-height: 0.95;
+      text-transform: uppercase; letter-spacing: 0.02em;
+      margin-bottom: 1rem;
+    }
+    .hero-name .line2 {
+      font-style: italic; color: var(--blue-pale);
+      display: block; padding-left: 0.05em;
+    }
+    .hero-name .line3 {
+      color: var(--cyan);
+      -webkit-text-stroke: 1px var(--cyan);
+      color: transparent;
+      display: block;
+    }
+
+    .hero-role {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem; color: var(--blue-pale);
+      letter-spacing: 0.12em; margin-bottom: 2rem;
+    }
+    .hero-role span { color: var(--muted); }
+
+    .hero-desc {
+      font-size: 1.1rem; color: #7a95b0;
+      line-height: 1.7; max-width: 460px; margin-bottom: 3rem;
+      font-weight: 400;
+    }
+
+    .hero-btns { display: flex; gap: 1rem; }
+
+    .btn {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 0.9rem; letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0.9rem 2.2rem; border: none; cursor: none;
+      text-decoration: none; transition: all 0.3s; display: inline-flex;
+      align-items: center; gap: 0.6rem; clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    }
+    .btn-primary {
+      background: var(--blue); color: #fff;
+      box-shadow: var(--glow);
+    }
+    .btn-primary:hover { background: var(--cyan); color: var(--bg); transform: translateY(-3px); }
+    .btn-ghost {
+      background: transparent; color: var(--blue-pale);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--blue-pale); color: var(--white); transform: translateY(-3px); }
+
+    /* ── PHOTO FRAME VISUAL ── */
+    .hero-car {
+      position: relative; z-index: 2;
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 1.2s ease 0.4s both;
+    }
+
+    .car-container {
+      position: relative; width: 100%; max-width: 420px;
+    }
+
+    /* Hexagon clip photo frame */
+    .photo-wrap {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Rotating outer ring */
+    .photo-ring {
+      position: absolute;
+      width: 400px; height: 400px;
+      border: 1.5px solid rgba(26,111,255,0.35);
+      border-radius: 50%;
+      animation: ringRotate 12s linear infinite;
+    }
+    .photo-ring::before {
+      content: '';
+      position: absolute; top: -4px; left: 50%;
+      transform: translateX(-50%);
+      width: 8px; height: 8px;
+      background: var(--cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--cyan);
+    }
+    @keyframes ringRotate { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+    .photo-ring2 {
+      position: absolute;
+      width: 360px; height: 360px;
+      border: 1px dashed rgba(26,111,255,0.2);
+      border-radius: 50%;
+      animation: ringRotate 20s linear infinite reverse;
+    }
+
+    /* Main photo hexagon frame */
+    .photo-hex {
+      width: 300px; height: 300px;
+      clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+      position: relative; overflow: hidden;
+      background: var(--surface2);
+      box-shadow: 0 0 60px rgba(26,111,255,0.4), inset 0 0 30px rgba(0,0,0,0.5);
+    }
+
+    .photo-hex img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center top;
+      display: block;
+    }
+
+    /* Overlay gradient on photo */
+    .photo-hex::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        180deg,
+        transparent 50%,
+        rgba(4,8,16,0.6) 100%
+      );
+      pointer-events: none;
+    }
+
+    /* Placeholder ketika belum ada foto */
+    .photo-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.8rem;
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    }
+    .photo-placeholder .ph-icon { font-size: 3.5rem; opacity: 0.5; }
+    .photo-placeholder .ph-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; color: var(--muted);
+      letter-spacing: 0.12em; text-transform: uppercase; text-align: center;
+      padding: 0 1rem;
+    }
+    .photo-placeholder .ph-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem; color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 0.4rem 1rem; border-radius: 2px;
+      cursor: pointer; letter-spacing: 0.08em;
+      transition: all 0.2s; background: none;
+    }
+    .photo-placeholder .ph-btn:hover { background: var(--cyan); color: var(--bg); }
+
+    /* Corner brackets decoration */
+    .photo-brackets {
+      position: absolute; inset: -12px;
+      pointer-events: none;
+    }
+    .bracket {
+      position: absolute;
+      width: 28px; height: 28px;
+      border-color: var(--blue-pale);
+      border-style: solid;
+      opacity: 0.7;
+    }
+    .bracket-tl { top: 0; left: 0; border-width: 2px 0 0 2px; }
+    .bracket-tr { top: 0; right: 0; border-width: 2px 2px 0 0; }
+    .bracket-bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+    .bracket-br { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+
+    /* Telemetry badge - sekarang posisi bawah-kiri */
+    .telemetry {
+      position: absolute; left: -30px; bottom: -10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; color: var(--cyan);
+      background: rgba(7,14,28,0.95);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--blue);
+      border-radius: 4px; padding: 0.8rem;
+      line-height: 1.9; letter-spacing: 0.05em;
+    }
+    .tele-label { color: var(--muted); }
+    .tele-val { color: var(--cyan); }
+
+    /* Badge status - kanan atas */
+    .photo-status {
+      position: absolute; right: -10px; top: 20px;
+      background: rgba(7,14,28,0.95);
+      border: 1px solid var(--border);
+      border-right: 2px solid var(--cyan);
+      padding: 0.7rem 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.1em;
+      line-height: 2;
+    }
+    .status-dot { color: #00ff88; animation: blink 1.5s step-end infinite; }
+    .status-name { color: var(--white); font-weight: 700; font-size: 0.72rem; display: block; }
+    .status-sub { color: var(--muted); }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: grid; grid-template-columns: repeat(4,1fr);
+      position: relative; z-index: 2;
+    }
+    .stat-cell {
+      padding: 2rem; text-align: center;
+      border-right: 1px solid var(--border);
+      transition: background 0.3s;
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-cell:hover { background: var(--surface2); }
+    .stat-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2.8rem; font-weight: 800; color: var(--blue-pale);
+      line-height: 1; display: block;
+    }
+    .stat-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem; color: var(--muted);
+      letter-spacing: 0.12em; text-transform: uppercase; margin-top: 0.4rem;
+    }
+
+    /* ── SECTION BASE ── */
+    section { padding: 7rem 5rem; position: relative; }
+
+    .sec-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--cyan); display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 0.6rem;
+    }
+    .sec-label::before { content:'//'; color: var(--blue); }
+
+    .sec-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em;
+      margin-bottom: 0.8rem; line-height: 1;
+    }
+    .sec-title em { font-style: italic; color: var(--blue-pale); }
+
+    /* ── ABOUT ── */
+    #about {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 6rem; align-items: center;
+      background: var(--bg2);
+    }
+
+    .about-text p {
+      color: #6a8099; font-size: 1.05rem; line-height: 1.8;
+      margin-bottom: 1.2rem; font-weight: 400;
+    }
+
+    .spec-table {
+      margin-top: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 4px; overflow: hidden;
+    }
+    .spec-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.8rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .spec-row:last-child { border-bottom: none; }
+    .spec-row:hover { background: var(--surface2); }
+    .spec-key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .spec-val { font-weight: 700; color: var(--blue-pale); letter-spacing: 0.04em; }
+
+    .skill-meters { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1.2rem; }
+    .skill-meter { }
+    .skill-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+    .skill-name { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.08em; }
+    .skill-pct { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--cyan); }
+    .meter-track {
+      height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden;
+    }
+    .meter-fill {
+      height: 100%; background: linear-gradient(90deg, var(--blue-mid), var(--cyan));
+      border-radius: 2px; width: 0;
+      transition: width 1.2s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: 0 0 8px var(--blue);
+    }
+
+    /* ── PORTFOLIO ── */
+    #portfolio { background: var(--bg); }
+
+    .garage-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 1.5rem; margin-top: 3rem;
+    }
+
+    .garage-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px; overflow: hidden;
+      position: relative;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+    }
+    .garage-card:hover {
+      border-color: var(--blue);
+      transform: translateY(-6px);
+      box-shadow: 0 12px 50px rgba(26,111,255,0.25);
+    }
+
+    .card-thumb {
+      height: 200px;
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-thumb-1 { background: linear-gradient(135deg, #030a1f 0%, #0a1f55 100%); }
+    .card-thumb-2 { background: linear-gradient(135deg, #020c1a 0%, #053360 100%); }
+    .card-thumb-3 { background: linear-gradient(135deg, #01060f 0%, #072355 100%); }
+
+    .card-thumb-icon {
+      font-size: 4rem; filter: drop-shadow(0 0 20px var(--blue));
+      animation: carFloat 4s ease-in-out infinite;
+    }
+    .garage-card:nth-child(2) .card-thumb-icon { animation-delay: 1s; }
+    .garage-card:nth-child(3) .card-thumb-icon { animation-delay: 2s; }
+
+    .card-thumb-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, var(--surface) 0%, transparent 50%);
+    }
+
+    .card-corner {
+      position: absolute; top: 0; right: 0;
+      width: 0; height: 0;
+      border-style: solid;
+      border-width: 0 36px 36px 0;
+      border-color: transparent var(--blue) transparent transparent;
+    }
+
+    .card-body { padding: 1.5rem; }
+    .card-cat {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--cyan);
+      margin-bottom: 0.5rem;
+    }
+    .card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.4rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.04em; margin-bottom: 0.5rem;
+    }
+    .card-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+    .card-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+    .card-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; color: var(--blue-pale);
+      border: 1px solid rgba(77,147,255,0.3);
+      padding: 0.2rem 0.6rem; border-radius: 2px;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── SERVICES ── */
+    #services {
+      background: var(--bg2);
+    }
+
+    .services-grid {
+      display: grid; grid-template-columns: repeat(2,1fr);
+      gap: 1.5rem; margin-top: 3rem;
+    }
+
+    .svc-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--blue);
+      padding: 2rem;
+      transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    .svc-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, var(--blue), transparent);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.4s;
+    }
+    .svc-card:hover::before { transform: scaleX(1); }
+    .svc-card:hover { border-left-color: var(--cyan); background: var(--surface2); }
+
+    .svc-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
+    .svc-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.3rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 0.6rem; color: var(--blue-pale);
+    }
+    .svc-desc { font-size: 0.92rem; color: var(--muted); line-height: 1.65; }
+
+    /* ── FADING SLIDER ── */
+    #brand-slider {
+      position: relative;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      min-height: 420px;
+    }
+
+    /* full-bleed slide backgrounds */
+    .fslide {
+      position: absolute; inset: 0;
+      display: flex; align-items: center;
+      padding: 0 5rem;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+      pointer-events: none;
+    }
+    .fslide.active { opacity: 1; pointer-events: auto; }
+
+    /* Per-slide accent colours via inline var */
+    .fslide::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--slide-bg, linear-gradient(135deg,#03071e,#0b1f55));
+      z-index: 0;
+    }
+    /* Animated glow orb */
+    .fslide::after {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: var(--slide-glow, rgba(26,111,255,0.18));
+      right: -80px; top: 50%; transform: translateY(-50%);
+      filter: blur(80px);
+      z-index: 0;
+      animation: pulse 5s ease-in-out infinite;
+    }
+
+    .fslide-inner {
+      position: relative; z-index: 2;
+      display: grid; grid-template-columns: 1fr auto;
+      align-items: center; gap: 4rem; width: 100%;
+    }
+
+    .fslide-left { max-width: 560px; }
+
+    .fslide-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--slide-accent, var(--cyan));
+      display: flex; align-items: center; gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .fslide-tag::before {
+      content: ''; display: block;
+      width: 28px; height: 1px;
+      background: var(--slide-accent, var(--cyan));
+    }
+
+    .fslide-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.03em; line-height: 0.95;
+      margin-bottom: 0.8rem;
+    }
+    .fslide-title em {
+      font-style: italic;
+      color: var(--slide-accent, var(--cyan));
+    }
+
+    .fslide-desc {
+      font-size: 0.95rem; color: #6a8099;
+      line-height: 1.7; margin-bottom: 1.6rem; max-width: 460px;
+    }
+
+    .fslide-specs {
+      display: flex; gap: 2rem;
+    }
+    .fslide-spec-item { }
+    .fslide-spec-val {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.8rem; font-weight: 800;
+      color: var(--slide-accent, var(--cyan));
+      line-height: 1; display: block;
+    }
+    .fslide-spec-key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; color: var(--muted);
+      letter-spacing: 0.12em; text-transform: uppercase; margin-top: 0.2rem;
+    }
+
+    .fslide-visual {
+      font-size: clamp(5rem, 10vw, 9rem);
+      filter: drop-shadow(0 0 40px var(--slide-accent, rgba(26,111,255,0.6)));
+      animation: carFloat 5s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    /* Progress bar */
+    .fslide-progress {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: rgba(255,255,255,0.05); z-index: 10;
+    }
+    .fslide-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      width: 0%;
+      transition: width linear;
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    /* Dots nav */
+    .fslide-dots {
+      position: absolute; bottom: 1.6rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; gap: 0.6rem; z-index: 10;
+    }
+    .fslide-dot {
+      width: 28px; height: 3px;
+      background: rgba(255,255,255,0.15);
+      border: none; cursor: none;
+      transition: background 0.3s, width 0.3s;
+      border-radius: 2px;
+    }
+    .fslide-dot.active {
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+      width: 48px;
+    }
+
+    /* Prev/Next arrows */
+    .fslide-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      z-index: 10; background: rgba(7,14,28,0.7);
+      border: 1px solid var(--border); color: var(--blue-pale);
+      width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: none;
+      transition: all 0.25s;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    }
+    .fslide-arrow:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+    .fslide-arrow.prev { left: 2rem; }
+    .fslide-arrow.next { right: 2rem; }
+
+    /* ── GALLERY SECTION ── */
+    #gallery { background:var(--bg2); padding:7rem 5rem; }
+
+    .gallery-header {
+      display:flex; justify-content:space-between; align-items:flex-end;
+      margin-bottom:2.5rem;
+    }
+    .gallery-header-right { display:flex; gap:0.6rem; }
+    .gal-filter-btn {
+      font-family:'JetBrains Mono',monospace;
+      font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase;
+      padding:0.45rem 1.1rem;
+      background:transparent; color:var(--muted);
+      border:1px solid var(--border); border-radius:2px; cursor:none;
+      transition:all 0.25s;
+    }
+    .gal-filter-btn:hover, .gal-filter-btn.active {
+      background:var(--blue); color:#fff; border-color:var(--blue);
+    }
+
+    .gallery-grid {
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      grid-auto-rows:160px;
+      gap:0.8rem;
+    }
+    .gal-item {
+      position:relative; overflow:hidden;
+      background:var(--surface);
+      border:1px solid var(--border); cursor:none;
+      transition:border-color 0.3s, transform 0.3s;
+    }
+    .gal-item.wide { grid-column:span 2; }
+    .gal-item.tall { grid-row:span 2; }
+    .gal-item.big  { grid-column:span 2; grid-row:span 2; }
+    .gal-item:hover { border-color:var(--blue); transform:scale(0.985); }
+
+    .gal-bg-1{background:linear-gradient(135deg,#03071a,#0a1e55);}
+    .gal-bg-2{background:linear-gradient(135deg,#020c1a,#062255);}
+    .gal-bg-3{background:linear-gradient(135deg,#050318,#11114a);}
+    .gal-bg-4{background:linear-gradient(135deg,#011020,#024488);}
+    .gal-bg-5{background:linear-gradient(135deg,#020810,#0a3060);}
+    .gal-bg-6{background:linear-gradient(135deg,#010814,#061a44);}
+    .gal-bg-7{background:linear-gradient(135deg,#030b1e,#0d2d7a);}
+    .gal-bg-8{background:linear-gradient(135deg,#020912,#042055);}
+
+    .gal-inner {
+      width:100%; height:100%;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:0.5rem; position:relative; transition:opacity 0.3s;
+    }
+    .gal-emoji { font-size:2.8rem; filter:drop-shadow(0 0 14px var(--blue)); }
+    .gal-item.big  .gal-emoji { font-size:4.5rem; }
+    .gal-item.tall .gal-emoji { font-size:3.5rem; }
+    .gal-item.wide .gal-emoji { font-size:3.2rem; }
+
+    .gal-label {
+      font-family:'JetBrains Mono',monospace;
+      font-size:0.6rem; color:var(--muted);
+      letter-spacing:0.12em; text-transform:uppercase;
+    }
+
+    .gal-overlay {
+      position:absolute; inset:0;
+      background:rgba(4,8,16,0.88);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:0.4rem; opacity:0; transition:opacity 0.3s;
+      padding:1.2rem; text-align:center;
+    }
+    .gal-item:hover .gal-overlay { opacity:1; }
+    .gal-overlay-title {
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:1.1rem; font-weight:800;
+      text-transform:uppercase; letter-spacing:0.08em; color:var(--white);
+    }
+    .gal-overlay-sub {
+      font-family:'JetBrains Mono',monospace;
+      font-size:0.62rem; color:var(--cyan);
+      letter-spacing:0.12em; text-transform:uppercase;
+    }
+    .gal-overlay-tag {
+      font-family:'JetBrains Mono',monospace;
+      font-size:0.58rem; color:var(--muted);
+      border:1px solid var(--border); padding:0.15rem 0.5rem;
+      border-radius:2px; margin-top:0.3rem;
+    }
+    .gal-item::after {
+      content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,transparent,var(--blue),transparent);
+      transform:scaleX(0); transform-origin:center; transition:transform 0.4s;
+    }
+    .gal-item:hover::after { transform:scaleX(1); }
+
+    /* Gallery upload slot */
+    .gal-upload {
+      border:1px dashed rgba(26,111,255,0.4);
+      background:rgba(26,111,255,0.04);
+    }
+    .gal-upload:hover { border-color:var(--cyan); background:rgba(0,212,255,0.05); }
+    .gal-upload-icon { font-size:2rem; color:var(--blue-pale); opacity:0.7; }
+    .gal-upload-text {
+      font-family:'JetBrains Mono',monospace;
+      font-size:0.6rem; color:var(--muted);
+      letter-spacing:0.12em; text-transform:uppercase; text-align:center;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      position:fixed; inset:0; z-index:500;
+      background:rgba(2,5,12,0.96); backdrop-filter:blur(12px);
+      display:none; align-items:center; justify-content:center;
+    }
+    .lightbox.open { display:flex; }
+    .lightbox-inner {
+      position:relative; max-width:80vw;
+    }
+    .lightbox-inner img {
+      display:block; max-width:80vw; max-height:80vh; object-fit:contain;
+      border:1px solid var(--border);
+      box-shadow:0 0 80px rgba(26,111,255,0.4);
+    }
+    .lightbox-placeholder {
+      width:640px; max-width:80vw; height:420px;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:1rem;
+      background:var(--surface);
+      border:1px solid var(--border);
+    }
+    .lightbox-placeholder .lp-emoji { font-size:4rem; }
+    .lightbox-placeholder .lp-title {
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:1.8rem; font-weight:800; text-transform:uppercase; color:var(--blue-pale);
+    }
+    .lightbox-placeholder .lp-sub {
+      font-family:'JetBrains Mono',monospace;
+      font-size:0.68rem; color:var(--muted); letter-spacing:0.12em;
+    }
+    .lightbox-close {
+      position:absolute; top:-44px; right:0;
+      font-family:'JetBrains Mono',monospace;
+      font-size:0.72rem; color:var(--cyan);
+      background:none; border:1px solid var(--cyan);
+      padding:0.3rem 0.8rem; cursor:none; letter-spacing:0.1em;
+    }
+    .lightbox-close:hover { background:var(--cyan); color:var(--bg); }
+    .lightbox-caption {
+      position:absolute; bottom:-36px; left:0;
+      font-family:'JetBrains Mono',monospace;
+      font-size:0.68rem; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase;
+    }
+
+    /* ── CONTACT ── */
+    #contact {
+      background: var(--bg);
+      position: relative; overflow: hidden;
+    }
+
+    #contact::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(26,111,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26,111,255,0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .contact-inner {
+      max-width: 700px; margin: 0 auto; text-align: center;
+      position: relative; z-index: 2;
+    }
+    .contact-inner .sec-label { justify-content: center; }
+    .contact-inner .sec-title { margin-bottom: 1rem; }
+    .contact-inner p { color: var(--muted); margin-bottom: 3rem; font-size: 1rem; }
+
+    .contact-grid {
+      display: grid; grid-template-columns: repeat(2,1fr);
+      gap: 1rem; margin-bottom: 2rem;
+    }
+    .contact-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.5rem; text-align: left;
+      text-decoration: none; color: var(--white);
+      transition: all 0.3s;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+    }
+    .contact-item:hover { background: var(--surface2); border-color: var(--blue); transform: translateY(-3px); }
+    .contact-item-icon { font-size: 1.5rem; margin-bottom: 0.6rem; display: block; }
+    .contact-item-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; color: var(--muted);
+      letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.3rem;
+    }
+    .contact-item-val { font-weight: 600; font-size: 0.95rem; color: var(--blue-pale); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #020408;
+      border-top: 1px solid var(--border);
+      padding: 2rem 5rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.1rem; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--blue-pale);
+    }
+    .footer-copy {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem; color: var(--muted); letter-spacing: 0.08em;
+    }
+
+    /* ── REVEAL ANIMATION ── */
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:none} }
+    .hero-text { animation: fadeUp 0.9s ease both; }
+
+    /* ── FSLIDE PHOTO UPLOAD ── */
+    .fslide-photo-area {
+      position: relative;
+      width: clamp(200px, 28vw, 340px);
+      height: clamp(200px, 28vw, 340px);
+      flex-shrink: 0;
+    }
+    .fslide-photo-ring {
+      position: absolute; inset: -12px;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 50%;
+      animation: ringRotate 14s linear infinite;
+    }
+    .fslide-photo-ring2 {
+      position: absolute; inset: -6px;
+      border: 1px dashed rgba(255,255,255,0.08);
+      border-radius: 50%;
+      animation: ringRotate 22s linear infinite reverse;
+    }
+    .fslide-photo-frame {
+      width: 100%; height: 100%;
+      clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+      overflow: hidden;
+      background: rgba(11,22,40,0.9);
+      border: 0;
+      cursor: none;
+      position: relative;
+      box-shadow: 0 0 40px rgba(26,111,255,0.35);
+    }
+    .fslide-photo-frame img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      display: block;
+    }
+    .fslide-photo-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.6rem;
+      background: linear-gradient(135deg, #040c1e, #0a1e40);
+    }
+    .fslide-photo-placeholder .sph-icon { font-size: 2.5rem; opacity: 0.5; }
+    .fslide-photo-placeholder .sph-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      text-align: center; padding: 0 0.8rem;
+    }
+    .fslide-photo-placeholder .sph-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 0.3rem 0.8rem; border-radius: 2px;
+      cursor: pointer; background: none; letter-spacing: 0.08em;
+      transition: all 0.2s;
+    }
+    .fslide-photo-placeholder .sph-btn:hover { background: var(--cyan); color: var(--bg); }
+    .fslide-photo-label {
+      position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* ── VIDEO TABLE SECTION ── */
+    .video-section {
+      margin-top: 4rem; padding-top: 3rem;
+      border-top: 1px solid var(--border);
+    }
+    .video-sec-header {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+    }
+    .video-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px; overflow: hidden;
+      position: relative;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .video-card:hover { border-color: var(--blue); transform: translateY(-4px); }
+    .video-thumb {
+      width: 100%; aspect-ratio: 16/9;
+      background: linear-gradient(135deg, #030a1f, #0a1f55);
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .video-thumb video {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .video-thumb-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 0.6rem;
+    }
+    .vtp-icon { font-size: 2.5rem; opacity: 0.4; }
+    .vtp-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .video-upload-btn {
+      position: absolute; inset: 0;
+      background: rgba(26,111,255,0.0);
+      border: none; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; color: var(--cyan);
+      letter-spacing: 0.12em; text-transform: uppercase;
+      opacity: 0; transition: opacity 0.25s, background 0.25s;
+    }
+    .video-card:hover .video-upload-btn { opacity: 1; background: rgba(4,8,16,0.7); }
+    .video-card.has-video .video-upload-btn { display: none; }
+    .video-meta {
+      padding: 0.9rem 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .video-meta-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--blue-pale);
+      margin-bottom: 0.2rem;
+    }
+    .video-meta-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .video-play-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none; opacity: 0; transition: opacity 0.25s;
+    }
+    .video-card.has-video:hover .video-play-overlay { opacity: 1; }
+    .video-play-btn {
+      width: 48px; height: 48px;
+      background: rgba(26,111,255,0.85);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 0 24px rgba(26,111,255,0.6);
+    }
+    .video-corner {
+      position: absolute; top: 0; right: 0;
+      width: 0; height: 0;
+      border-style: solid; border-width: 0 28px 28px 0;
+      border-color: transparent var(--blue) transparent transparent;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      nav { padding: 1rem 2rem; }
+      .nav-links { display: none; }
+      #hero { grid-template-columns: 1fr; padding: 6rem 2rem 4rem; }
+      .hero-car { display: none; }
+      .stats-bar { grid-template-columns: repeat(2,1fr); }
+      section { padding: 5rem 2rem; }
+      #about { grid-template-columns: 1fr; gap: 3rem; }
+      .garage-grid { grid-template-columns: 1fr; }
+      .services-grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
+      .video-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div class="cursor">
+  <div class="cursor-core" id="cursorCore"></div>
+  <div class="cursor-outer" id="cursorOuter"></div>
+</div>
+
+<!-- Navbar -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-mark">R</div>
+    Revo<span>Garage</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#hero">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#portfolio">Garage</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#gallery">Galeri</a></li>
+    <li><a href="#contact">Kontak</a></li>
+  </ul>
+  <div class="nav-badge">● ONLINE</div>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-glow"></div>
+
+  <div class="hero-text">
+    <div class="hero-eyebrow">Automotive Enthusiast & Builder</div>
+    <h1 class="hero-name">
+      RIZKY
+      <span class="line2">Pratama</span>
+      <span class="line3">MOTORS</span>
+    </h1>
+    <p class="hero-role">
+      <span>// </span>Engine Builder · Custom Modifier · Track Driver
+    </p>
+    <p class="hero-desc">
+      Dari asap bengkel ke sirkuit balap — saya hidup untuk mesin, modifikasi, dan adrenalin kecepatan. Lebih dari 10 tahun meracik performa di dunia otomotif Indonesia.
+    </p>
+    <div class="hero-btns">
+      <a href="#portfolio" class="btn btn-primary">Lihat Garage ▶</a>
+      <a href="#contact" class="btn btn-ghost">Hubungi Saya</a>
+    </div>
+  </div>
+
+  <div class="hero-car">
+    <div class="car-container">
+
+      <!-- Input file tersembunyi -->
+      <input type="file" id="photoInput" accept="image/*" style="display:none"/>
+
+      <div class="photo-wrap">
+        <!-- Ring animasi -->
+        <div class="photo-ring"></div>
+        <div class="photo-ring2"></div>
+
+        <!-- Frame hexagon foto -->
+        <div class="photo-hex" id="photoHex">
+          <div class="photo-placeholder" id="photoPlaceholder">
+            <span class="ph-icon">📷</span>
+            <span class="ph-text">Klik untuk upload<br>foto Anda</span>
+            <button class="ph-btn" onclick="document.getElementById('photoInput').click()">UPLOAD FOTO</button>
+          </div>
+        </div>
+
+        <!-- Bracket dekorasi -->
+        <div class="photo-brackets">
+          <div class="bracket bracket-tl"></div>
+          <div class="bracket bracket-tr"></div>
+          <div class="bracket bracket-bl"></div>
+          <div class="bracket bracket-br"></div>
+        </div>
+
+        <!-- Telemetry kiri bawah -->
+        <div class="telemetry">
+          <div><span class="tele-label">RPM  </span><span class="tele-val" id="telRpm">7,200</span></div>
+          <div><span class="tele-label">SPD  </span><span class="tele-val" id="telSpd">180 km/h</span></div>
+          <div><span class="tele-label">GEAR </span><span class="tele-val" id="telGear">4th</span></div>
+          <div><span class="tele-label">BOOST</span><span class="tele-val">1.2 bar</span></div>
+        </div>
+
+        <!-- Badge status kanan atas -->
+        <div class="photo-status">
+          <span class="status-dot">●</span> ACTIVE<br>
+          <span class="status-name">RIZKY P.</span>
+          <span class="status-sub">Manado, ID</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+  <div class="stat-cell reveal">
+    <span class="stat-num" data-target="10">0</span>
+    <span class="stat-sub">Tahun Pengalaman</span>
+  </div>
+  <div class="stat-cell reveal" style="transition-delay:0.1s">
+    <span class="stat-num" data-target="85">0</span>
+    <span class="stat-sub">Unit Dimodifikasi</span>
+  </div>
+  <div class="stat-cell reveal" style="transition-delay:0.2s">
+    <span class="stat-num" data-target="23">0</span>
+    <span class="stat-sub">Kejuaraan Diikuti</span>
+  </div>
+  <div class="stat-cell reveal" style="transition-delay:0.3s">
+    <span class="stat-num" data-target="8">0</span>
+    <span class="stat-sub">Podium Finish</span>
+  </div>
+</div>
+
+<!-- About -->
+<section id="about">
+  <div class="reveal">
+    <div class="sec-label">Tentang Saya</div>
+    <h2 class="sec-title">Built Different,<br><em>Driven Harder</em></h2>
+    <p class="about-text">
+      <p style="color:#6a8099;font-size:1.05rem;line-height:1.8;margin-bottom:1.2rem;">Saya adalah Rizky Pratama — mekanik, modifier, dan pembalap amatir yang berbasis di Manado, Sulawesi Utara. Setiap mobil adalah kanvas, setiap mesin adalah simfoni yang bisa dioptimalkan.</p>
+      <p style="color:#6a8099;font-size:1.05rem;line-height:1.8;margin-bottom:1.2rem;">Spesialisasi saya meliputi engine tuning, aero body kit, suspensi performa, dan setup track day. Saya percaya bahwa mobil yang baik bukan hanya soal tenaga — tapi tentang keseimbangan sempurna antara mesin, chassis, dan pengemudi.</p>
+    </p>
+    <div class="spec-table">
+      <div class="spec-row"><span class="spec-key">Lokasi</span><span class="spec-val">Manado, Sulawesi Utara</span></div>
+      <div class="spec-row"><span class="spec-key">Spesialisasi</span><span class="spec-val">JDM & European Tuning</span></div>
+      <div class="spec-row"><span class="spec-key">Daily Driver</span><span class="spec-val">Honda Civic EK9 Turbo</span></div>
+      <div class="spec-row"><span class="spec-key">Track Car</span><span class="spec-val">Toyota GT86 Wide Body</span></div>
+      <div class="spec-row"><span class="spec-key">Sertifikasi</span><span class="spec-val">ASE Master Technician</span></div>
+    </div>
+  </div>
+
+  <div class="reveal" style="transition-delay:0.15s">
+    <div class="sec-label">Skill Level</div>
+    <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1.5rem;color:var(--blue-pale);">Keahlian Teknis</h3>
+    <div class="skill-meters">
+      <div class="skill-meter">
+        <div class="skill-header"><span class="skill-name">Engine Building & Tuning</span><span class="skill-pct">95%</span></div>
+        <div class="meter-track"><div class="meter-fill" data-pct="95"></div></div>
+      </div>
+      <div class="skill-meter">
+        <div class="skill-header"><span class="skill-name">Suspension & Handling Setup</span><span class="skill-pct">90%</span></div>
+        <div class="meter-track"><div class="meter-fill" data-pct="90"></div></div>
+      </div>
+      <div class="skill-meter">
+        <div class="skill-header"><span class="skill-name">ECU Remapping & Dyno Tuning</span><span class="skill-pct">88%</span></div>
+        <div class="meter-track"><div class="meter-fill" data-pct="88"></div></div>
+      </div>
+      <div class="skill-meter">
+        <div class="skill-header"><span class="skill-name">Aero & Body Fabrication</span><span class="skill-pct">82%</span></div>
+        <div class="meter-track"><div class="meter-fill" data-pct="82"></div></div>
+      </div>
+      <div class="skill-meter">
+        <div class="skill-header"><span class="skill-name">Track Driving & Race Craft</span><span class="skill-pct">78%</span></div>
+        <div class="meter-track"><div class="meter-fill" data-pct="78"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Portfolio / Garage -->
+<section id="portfolio">
+  <div class="reveal">
+    <div class="sec-label">Portofolio</div>
+    <h2 class="sec-title">The <em>Garage</em></h2>
+    <p style="color:var(--muted);margin-top:0.5rem;max-width:500px;">Proyek-proyek terbaik yang pernah melewati bengkel saya.</p>
+  </div>
+
+  <div class="garage-grid">
+    <div class="garage-card reveal">
+      <div class="card-thumb card-thumb-1">
+        <div class="card-thumb-icon">🏎️</div>
+        <div class="card-thumb-overlay"></div>
+        <div class="card-corner"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-cat">// Build 001 · JDM</div>
+        <div class="card-title">Civic EK Turbo Build</div>
+        <div class="card-desc">Full engine build K20 swap dengan turbocharger Garrett GT3071R, 350whp, cocok untuk drag dan time attack.</div>
+        <div class="card-tags">
+          <span class="card-tag">K20 Swap</span>
+          <span class="card-tag">Turbo</span>
+          <span class="card-tag">350whp</span>
+        </div>
+      </div>
+    </div>
+    <div class="garage-card reveal" style="transition-delay:0.1s">
+      <div class="card-thumb card-thumb-2">
+        <div class="card-thumb-icon">🚗</div>
+        <div class="card-thumb-overlay"></div>
+        <div class="card-corner"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-cat">// Build 002 · Track</div>
+        <div class="card-title">GT86 Wide Body Track</div>
+        <div class="card-desc">Full aero conversion, widebody Rocket Bunny, coilover Öhlins, dan naturally aspirated FA20 dioptimasi untuk sirkuit.</div>
+        <div class="card-tags">
+          <span class="card-tag">Wide Body</span>
+          <span class="card-tag">Öhlins</span>
+          <span class="card-tag">Track Day</span>
+        </div>
+      </div>
+    </div>
+    <div class="garage-card reveal" style="transition-delay:0.2s">
+      <div class="card-thumb card-thumb-3">
+        <div class="card-thumb-icon">⚡</div>
+        <div class="card-thumb-overlay"></div>
+        <div class="card-corner"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-cat">// Build 003 · Drift</div>
+        <div class="card-title">Silvia S15 Drift Machine</div>
+        <div class="card-desc">SR20DET rebuilt, high-angle suspension kit, hydraulic handbrake, dan livery full custom untuk kompetisi drift.</div>
+        <div class="card-tags">
+          <span class="card-tag">SR20DET</span>
+          <span class="card-tag">Drift Spec</span>
+          <span class="card-tag">Custom Livery</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section id="services">
+  <div class="reveal">
+    <div class="sec-label">Layanan</div>
+    <h2 class="sec-title">Apa yang <em>Saya Tawarkan</em></h2>
+  </div>
+  <div class="services-grid">
+    <div class="svc-card reveal">
+      <span class="svc-icon">🔧</span>
+      <div class="svc-title">Engine Tuning & Rebuild</div>
+      <div class="svc-desc">Dari overhaul mesin standar hingga full build performa tinggi. Setiap toleransi diukur dengan presisi micrometer.</div>
+    </div>
+    <div class="svc-card reveal" style="transition-delay:0.1s">
+      <span class="svc-icon">💻</span>
+      <div class="svc-title">ECU Remapping & Dyno</div>
+      <div class="svc-desc">Tuning berbasis data menggunakan Haltech, Link, dan Ecutek. Dyno session dengan analisis torsi dan power curve lengkap.</div>
+    </div>
+    <div class="svc-card reveal" style="transition-delay:0.15s">
+      <span class="svc-icon">🏁</span>
+      <div class="svc-title">Track Day Preparation</div>
+      <div class="svc-desc">Setup mobil khusus sirkuit — brake bias, alignment, damper, dan safety cage sesuai regulasi balap Indonesia.</div>
+    </div>
+    <div class="svc-card reveal" style="transition-delay:0.2s">
+      <span class="svc-icon">🎨</span>
+      <div class="svc-title">Body Kit & Aero Fabrication</div>
+      <div class="svc-desc">Fabrikasi diffuser, splitter, wing, dan widebody custom berbahan FRP dan carbon fiber dengan downforce terukur.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FADING SLIDER ══ -->
+<div id="brand-slider">
+
+  <!-- Slide 1 -->
+  <div class="fslide active" style="--slide-bg:linear-gradient(135deg,#010918,#041c55);--slide-glow:rgba(26,111,255,0.22);--slide-accent:#4d93ff">
+    <div class="fslide-inner">
+      <div class="fslide-left">
+        <div class="fslide-tag">// Build Feature · JDM</div>
+        <h2 class="fslide-title">Honda Civic<br><em>EK Turbo</em></h2>
+        <p class="fslide-desc">K20 engine swap dengan turbocharger Garrett GT3071R. Dibangun untuk drag strip dan time attack — performa jalanan sekaligus sirkuit.</p>
+        <div class="fslide-specs">
+          <div class="fslide-spec-item"><span class="fslide-spec-val">350</span><span class="fslide-spec-key">Wheel HP</span></div>
+          <div class="fslide-spec-item"><span class="fslide-spec-val">1.2</span><span class="fslide-spec-key">Bar Boost</span></div>
+          <div class="fslide-spec-item"><span class="fslide-spec-val">1,050</span><span class="fslide-spec-key">kg Curb Wt</span></div>
+        </div>
+      </div>
+      <div class="fslide-photo-area" id="slidePhotoArea1">
+        <div class="fslide-photo-ring"></div>
+        <div class="fslide-photo-ring2"></div>
+        <input type="file" id="slidePhotoInput1" accept="image/*" style="display:none"/>
+        <div class="fslide-photo-frame" id="slidePhotoFrame1" onclick="document.getElementById('slidePhotoInput1').click()">
+          <div class="fslide-photo-placeholder" id="slidePhotoPlaceholder1">
+            <span class="sph-icon">📷</span>
+            <span class="sph-text">Foto Radi<br>Photo Garage</span>
+            <button class="sph-btn" onclick="event.stopPropagation();document.getElementById('slidePhotoInput1').click()">UPLOAD</button>
+          </div>
+        </div>
+        <span class="fslide-photo-label">// RADI PHOTO GARAGE · SLIDE 1</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 2 -->
+  <div class="fslide" style="--slide-bg:linear-gradient(135deg,#010510,#071540);--slide-glow:rgba(0,212,255,0.18);--slide-accent:#00d4ff">
+    <div class="fslide-inner">
+      <div class="fslide-left">
+        <div class="fslide-tag">// Track Build · Aero</div>
+        <h2 class="fslide-title">Toyota<br><em>GT86 Wide</em></h2>
+        <p class="fslide-desc">Rocket Bunny widebody kit, suspensi Öhlins, dan FA20 dioptimalkan untuk grip maksimal. Mobil ini lahir di Sentul, hidup di sirkuit.</p>
+        <div class="fslide-specs">
+          <div class="fslide-spec-item"><span class="fslide-spec-val">210</span><span class="fslide-spec-key">Wheel HP</span></div>
+          <div class="fslide-spec-item"><span class="fslide-spec-val">2:14</span><span class="fslide-spec-key">Lap Time</span></div>
+          <div class="fslide-spec-item"><span class="fslide-spec-val">1,180</span><span class="fslide-spec-key">kg Curb Wt</span></div>
+        </div>
+      </div>
+      <div class="fslide-photo-area" id="slidePhotoArea2">
+        <div class="fslide-photo-ring"></div>
+        <div class="fslide-photo-ring2"></div>
+        <input type="file" id="slidePhotoInput2" accept="image/*" style="display:none"/>
+        <div class="fslide-photo-frame" id="slidePhotoFrame2" onclick="document.getElementById('slidePhotoInput2').click()">
+          <div class="fslide-photo-placeholder" id="slidePhotoPlaceholder2">
+            <span class="sph-icon">📷</span>
+            <span class="sph-text">Foto Radi<br>Photo Garage</span>
+            <button class="sph-btn" onclick="event.stopPropagation();document.getElementById('slidePhotoInput2').click()">UPLOAD</button>
+          </div>
+        </div>
+        <span class="fslide-photo-label">// RADI PHOTO GARAGE · SLIDE 2</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3 -->
+  <div class="fslide" style="--slide-bg:linear-gradient(135deg,#010712,#0a1248);--slide-glow:rgba(120,80,255,0.2);--slide-accent:#a07fff">
+    <div class="fslide-inner">
+      <div class="fslide-left">
+        <div class="fslide-tag">// Drift Spec · Competition</div>
+        <h2 class="fslide-title">Nissan<br><em>Silvia S15</em></h2>
+        <p class="fslide-desc">SR20DET rebuilt dengan high-angle suspension kit dan hydraulic handbrake. Livery full custom untuk kompetisi drift regional.</p>
+        <div class="fslide-specs">
+          <div class="fslide-spec-item"><span class="fslide-spec-val">280</span><span class="fslide-spec-key">Wheel HP</span></div>
+          <div class="fslide-spec-item"><span class="fslide-spec-val">55°</span><span class="fslide-spec-key">Lock Angle</span></div>
+          <div class="fslide-spec-item"><span class="fslide-spec-val">1,120</span><span class="fslide-spec-key">kg Curb Wt</span></div>
+        </div>
+      </div>
+      <div class="fslide-photo-area" id="slidePhotoArea3">
+        <div class="fslide-photo-ring"></div>
+        <div class="fslide-photo-ring2"></div>
+        <input type="file" id="slidePhotoInput3" accept="image/*" style="display:none"/>
+        <div class="fslide-photo-frame" id="slidePhotoFrame3" onclick="document.getElementById('slidePhotoInput3').click()">
+          <div class="fslide-photo-placeholder" id="slidePhotoPlaceholder3">
+            <span class="sph-icon">📷</span>
+            <span class="sph-text">Foto Radi<br>Photo Garage</span>
+            <button class="sph-btn" onclick="event.stopPropagation();document.getElementById('slidePhotoInput3').click()">UPLOAD</button>
+          </div>
+        </div>
+        <span class="fslide-photo-label">// RADI PHOTO GARAGE · SLIDE 3</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 4 -->
+  <div class="fslide" style="--slide-bg:linear-gradient(135deg,#020810,#062240);--slide-glow:rgba(0,255,160,0.15);--slide-accent:#00ffaa">
+    <div class="fslide-inner">
+      <div class="fslide-left">
+        <div class="fslide-tag">// Rally Build · AWD</div>
+        <h2 class="fslide-title">Subaru<br><em>Impreza STi</em></h2>
+        <p class="fslide-desc">EJ207 dengan peranti Cusco, Tomei headers, dan Prodrive suspension. Disiapkan untuk rally road dan hill climb di Sulawesi Utara.</p>
+        <div class="fslide-specs">
+          <div class="fslide-spec-item"><span class="fslide-spec-val">310</span><span class="fslide-spec-key">Wheel HP</span></div>
+          <div class="fslide-spec-item"><span class="fslide-spec-val">AWD</span><span class="fslide-spec-key">Drivetrain</span></div>
+          <div class="fslide-spec-item"><span class="fslide-spec-val">1,340</span><span class="fslide-spec-key">kg Curb Wt</span></div>
+        </div>
+      </div>
+      <div class="fslide-photo-area" id="slidePhotoArea4">
+        <div class="fslide-photo-ring"></div>
+        <div class="fslide-photo-ring2"></div>
+        <input type="file" id="slidePhotoInput4" accept="image/*" style="display:none"/>
+        <div class="fslide-photo-frame" id="slidePhotoFrame4" onclick="document.getElementById('slidePhotoInput4').click()">
+          <div class="fslide-photo-placeholder" id="slidePhotoPlaceholder4">
+            <span class="sph-icon">📷</span>
+            <span class="sph-text">Foto Radi<br>Photo Garage</span>
+            <button class="sph-btn" onclick="event.stopPropagation();document.getElementById('slidePhotoInput4').click()">UPLOAD</button>
+          </div>
+        </div>
+        <span class="fslide-photo-label">// RADI PHOTO GARAGE · SLIDE 4</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="fslide-progress"><div class="fslide-progress-bar" id="fsProgressBar"></div></div>
+
+  <!-- Dots -->
+  <div class="fslide-dots" id="fsDots"></div>
+
+  <!-- Arrows -->
+  <button class="fslide-arrow prev" id="fsPrev">&#8592;</button>
+  <button class="fslide-arrow next" id="fsNext">&#8594;</button>
+
+</div>
+
+<!-- ══ GALLERY ══ -->
+<section id="gallery">
+  <div class="gallery-header reveal">
+    <div>
+      <div class="sec-label">Galeri</div>
+      <h2 class="sec-title">Photo <em>Garage</em></h2>
+    </div>
+    <div class="gallery-header-right">
+      <button class="gal-filter-btn active" data-filter="all">All</button>
+      <button class="gal-filter-btn" data-filter="build">Build</button>
+      <button class="gal-filter-btn" data-filter="track">Track</button>
+      <button class="gal-filter-btn" data-filter="detail">Detail</button>
+    </div>
+  </div>
+
+  <!-- Tabel Masonry Grid -->
+  <div class="gallery-grid reveal" id="galleryGrid">
+
+    <!-- Big feature item -->
+    <div class="gal-item big gal-bg-1" data-cat="build" data-title="Civic EK Turbo" data-sub="Full Build · 350whp" onclick="openLightbox(this)">
+      <div class="gal-inner">
+        <span class="gal-emoji">🏎️</span>
+        <span class="gal-label">// FEATURE BUILD</span>
+      </div>
+      <div class="gal-overlay">
+        <div class="gal-overlay-title">Civic EK Turbo</div>
+        <div class="gal-overlay-sub">Full Build · 350whp</div>
+        <div class="gal-overlay-tag">K20 Swap · Garrett GT3071R</div>
+      </div>
+    </div>
+
+    <!-- Tall item -->
+    <div class="gal-item tall gal-bg-3" data-cat="track" data-title="GT86 Track Day" data-sub="Sentul Circuit" onclick="openLightbox(this)">
+      <div class="gal-inner">
+        <span class="gal-emoji">🏁</span>
+        <span class="gal-label">// TRACK DAY</span>
+      </div>
+      <div class="gal-overlay">
+        <div class="gal-overlay-title">GT86 Track Day</div>
+        <div class="gal-overlay-sub">Sentul Circuit</div>
+        <div class="gal-overlay-tag">Lap Record · 2:14.3</div>
+      </div>
+    </div>
+
+    <!-- Normal item -->
+    <div class="gal-item gal-bg-4" data-cat="detail" data-title="Engine Bay Detail" data-sub="K20 Swap Build" onclick="openLightbox(this)">
+      <div class="gal-inner">
+        <span class="gal-emoji">🔧</span>
+        <span class="gal-label">// ENGINE BAY</span>
+      </div>
+      <div class="gal-overlay">
+        <div class="gal-overlay-title">Engine Bay Detail</div>
+        <div class="gal-overlay-sub">K20 Swap Build</div>
+        <div class="gal-overlay-tag">Custom Intake · Billet Parts</div>
+      </div>
+    </div>
+
+    <!-- Normal item -->
+    <div class="gal-item gal-bg-2" data-cat="build" data-title="Silvia S15 Drift" data-sub="Competition Ready" onclick="openLightbox(this)">
+      <div class="gal-inner">
+        <span class="gal-emoji">🚗</span>
+        <span class="gal-label">// DRIFT SPEC</span>
+      </div>
+      <div class="gal-overlay">
+        <div class="gal-overlay-title">Silvia S15 Drift</div>
+        <div class="gal-overlay-sub">Competition Ready</div>
+        <div class="gal-overlay-tag">SR20DET · High Angle Kit</div>
+      </div>
+    </div>
+
+    <!-- Wide item -->
+    <div class="gal-item wide gal-bg-5" data-cat="track" data-title="Pit Lane Action" data-sub="Race Weekend" onclick="openLightbox(this)">
+      <div class="gal-inner">
+        <span class="gal-emoji">⛽</span>
+        <span class="gal-label">// PIT CREW</span>
+      </div>
+      <div class="gal-overlay">
+        <div class="gal-overlay-title">Pit Lane Action</div>
+        <div class="gal-overlay-sub">Race Weekend</div>
+        <div class="gal-overlay-tag">Quick Change · Strategy</div>
+      </div>
+    </div>
+
+    <!-- Normal item -->
+    <div class="gal-item gal-bg-6" data-cat="detail" data-title="Brake System" data-sub="AP Racing 6-Pot" onclick="openLightbox(this)">
+      <div class="gal-inner">
+        <span class="gal-emoji">⚙️</span>
+        <span class="gal-label">// BRAKES</span>
+      </div>
+      <div class="gal-overlay">
+        <div class="gal-overlay-title">Brake System</div>
+        <div class="gal-overlay-sub">AP Racing 6-Pot</div>
+        <div class="gal-overlay-tag">355mm Disc · Carbon Pads</div>
+      </div>
+    </div>
+
+    <!-- Normal item -->
+    <div class="gal-item gal-bg-7" data-cat="detail" data-title="Wheel Fitment" data-sub="Work Emotion CR3P" onclick="openLightbox(this)">
+      <div class="gal-inner">
+        <span class="gal-emoji">🎡</span>
+        <span class="gal-label">// WHEELS</span>
+      </div>
+      <div class="gal-overlay">
+        <div class="gal-overlay-title">Wheel Fitment</div>
+        <div class="gal-overlay-sub">Work Emotion CR3P</div>
+        <div class="gal-overlay-tag">18×10.5 · Stretched 235</div>
+      </div>
+    </div>
+
+    <!-- Wide item -->
+    <div class="gal-item wide gal-bg-8" data-cat="build" data-title="Roll Cage Fabrication" data-sub="Custom 4-Point Cage" onclick="openLightbox(this)">
+      <div class="gal-inner">
+        <span class="gal-emoji">🛠️</span>
+        <span class="gal-label">// FABRICATION</span>
+      </div>
+      <div class="gal-overlay">
+        <div class="gal-overlay-title">Roll Cage Fabrication</div>
+        <div class="gal-overlay-sub">Custom 4-Point Cage</div>
+        <div class="gal-overlay-tag">DOM Tubing · FIA Spec</div>
+      </div>
+    </div>
+
+    <!-- Upload slot -->
+    <input type="file" id="galUploadInput" accept="image/*" style="display:none" multiple/>
+    <div class="gal-item gal-upload" onclick="document.getElementById('galUploadInput').click()">
+      <div class="gal-inner">
+        <span class="gal-upload-icon">＋</span>
+        <span class="gal-upload-text">Tambah<br>Foto</span>
+      </div>
+    </div>
+
+  </div><!-- /gallery-grid -->
+
+  <!-- ══ VIDEO TABLE ══ -->
+  <div class="video-section reveal">
+    <div class="video-sec-header">
+      <div>
+        <div class="sec-label">Video</div>
+        <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;text-transform:uppercase;letter-spacing:0.03em;line-height:1;">My <em style="color:var(--blue-pale);font-style:italic;">Videos</em></h3>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;">// KLIK CARD UNTUK UPLOAD VIDEO</div>
+    </div>
+
+    <div class="video-grid">
+
+      <!-- Video Slot 1 -->
+      <div class="video-card" id="videoCard1">
+        <input type="file" id="videoInput1" accept="video/*" style="display:none"/>
+        <div class="video-thumb" id="videoThumb1">
+          <div class="video-thumb-placeholder" id="videoPlaceholder1">
+            <span class="vtp-icon">🎬</span>
+            <span class="vtp-text">// VIDEO 01</span>
+          </div>
+        </div>
+        <button class="video-upload-btn" onclick="document.getElementById('videoInput1').click()">＋ UPLOAD VIDEO</button>
+        <div class="video-play-overlay"><div class="video-play-btn">▶</div></div>
+        <div class="video-corner"></div>
+        <div class="video-meta">
+          <div class="video-meta-title" id="videoTitle1">Engine Build Session</div>
+          <div class="video-meta-sub">// KLIK UNTUK UPLOAD · FORMAT MP4</div>
+        </div>
+      </div>
+
+      <!-- Video Slot 2 -->
+      <div class="video-card" id="videoCard2">
+        <input type="file" id="videoInput2" accept="video/*" style="display:none"/>
+        <div class="video-thumb" id="videoThumb2">
+          <div class="video-thumb-placeholder" id="videoPlaceholder2">
+            <span class="vtp-icon">🎬</span>
+            <span class="vtp-text">// VIDEO 02</span>
+          </div>
+        </div>
+        <button class="video-upload-btn" onclick="document.getElementById('videoInput2').click()">＋ UPLOAD VIDEO</button>
+        <div class="video-play-overlay"><div class="video-play-btn">▶</div></div>
+        <div class="video-corner"></div>
+        <div class="video-meta">
+          <div class="video-meta-title" id="videoTitle2">Track Day Highlights</div>
+          <div class="video-meta-sub">// KLIK UNTUK UPLOAD · FORMAT MP4</div>
+        </div>
+      </div>
+
+      <!-- Video Slot 3 -->
+      <div class="video-card" id="videoCard3">
+        <input type="file" id="videoInput3" accept="video/*" style="display:none"/>
+        <div class="video-thumb" id="videoThumb3">
+          <div class="video-thumb-placeholder" id="videoPlaceholder3">
+            <span class="vtp-icon">🎬</span>
+            <span class="vtp-text">// VIDEO 03</span>
+          </div>
+        </div>
+        <button class="video-upload-btn" onclick="document.getElementById('videoInput3').click()">＋ UPLOAD VIDEO</button>
+        <div class="video-play-overlay"><div class="video-play-btn">▶</div></div>
+        <div class="video-corner"></div>
+        <div class="video-meta">
+          <div class="video-meta-title" id="videoTitle3">Drift Competition Run</div>
+          <div class="video-meta-sub">// KLIK UNTUK UPLOAD · FORMAT MP4</div>
+        </div>
+      </div>
+
+    </div><!-- /video-grid -->
+  </div><!-- /video-section -->
+
+</section>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <div class="lightbox-inner" id="lightboxInner">
+    <button class="lightbox-close" onclick="closeLightbox()">✕ TUTUP</button>
+    <div class="lightbox-placeholder" id="lightboxContent">
+      <span class="lp-emoji">🔍</span>
+      <div class="lp-title">Preview</div>
+      <div class="lp-sub">// KLIK ITEM GALERI UNTUK MELIHAT</div>
+    </div>
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+</div>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="sec-label reveal">Kontak</div>
+    <h2 class="sec-title reveal">Ready to <em>Build?</em></h2>
+    <p class="reveal">Punya proyek impian? Mari diskusikan. Dari konsultasi hingga full build, siap gas.</p>
+    <div class="contact-grid reveal">
+      <a href="mailto:rizky@revogarage.id" class="contact-item">
+        <span class="contact-item-icon">✉️</span>
+        <div class="contact-item-label">Email</div>
+        <div class="contact-item-val">rizky@revogarage.id</div>
+      </a>
+      <a href="tel:+628123456789" class="contact-item">
+        <span class="contact-item-icon">📞</span>
+        <div class="contact-item-label">WhatsApp</div>
+        <div class="contact-item-val">+62 812-3456-789</div>
+      </a>
+      <a href="#" class="contact-item">
+        <span class="contact-item-icon">📍</span>
+        <div class="contact-item-label">Bengkel</div>
+        <div class="contact-item-val">Manado, Sulawesi Utara</div>
+      </a>
+      <a href="#" class="contact-item">
+        <span class="contact-item-icon">📷</span>
+        <div class="contact-item-label">Instagram</div>
+        <div class="contact-item-val">@revogarage.id</div>
+      </a>
+    </div>
+    <a href="#" class="btn btn-primary reveal" style="margin:0 auto;display:inline-flex;">
+      BOOK KONSULTASI ▶
+    </a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">RevoGarage</div>
+  <div class="footer-copy">© 2025 RIZKY PRATAMA · BUILT WITH PASSION · MANADO</div>
+</footer>
+
+<script>
+// ── CURSOR ──
+const core = document.getElementById('cursorCore');
+const outer = document.getElementById('cursorOuter');
+let mx=0,my=0,ox=0,oy=0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  core.style.left = mx+'px'; core.style.top = my+'px';
+});
+(function anim() {
+  ox += (mx-ox)*0.1; oy += (my-oy)*0.1;
+  outer.style.left = ox+'px'; outer.style.top = oy+'px';
+  requestAnimationFrame(anim);
+})();
+
+// ── SCROLL REVEAL ──
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ── COUNT UP ──
+const countObs = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if(!entry.isIntersecting) return;
+    const el = entry.target;
+    const target = +el.dataset.target;
+    let cur = 0; const inc = target/60;
+    const t = setInterval(() => {
+      cur += inc;
+      if(cur >= target) { el.textContent = target+'+'; clearInterval(t); }
+      else el.textContent = Math.floor(cur);
+    }, 25);
+    countObs.unobserve(el);
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.stat-num[data-target]').forEach(el => countObs.observe(el));
+
+// ── SKILL METER ──
+const meterObs = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if(!entry.isIntersecting) return;
+    entry.target.querySelectorAll('.meter-fill').forEach(fill => {
+      fill.style.width = fill.dataset.pct + '%';
+    });
+  });
+}, { threshold: 0.3 });
+const aboutSec = document.getElementById('about');
+if(aboutSec) meterObs.observe(aboutSec);
+
+// ── PHOTO UPLOAD ──
+const photoInput = document.getElementById('photoInput');
+const photoHex   = document.getElementById('photoHex');
+const placeholder = document.getElementById('photoPlaceholder');
+
+photoInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    // Hapus placeholder, sisipkan gambar
+    placeholder && placeholder.remove();
+    let img = photoHex.querySelector('img');
+    if (!img) {
+      img = document.createElement('img');
+      photoHex.prepend(img);
+    }
+    img.src = ev.target.result;
+    img.alt = 'Foto Profil';
+    // Tambah overlay kalau belum ada
+    if (!photoHex.querySelector('.photo-overlay-grad')) {
+      const ov = document.createElement('div');
+      ov.className = 'photo-overlay-grad';
+      ov.style.cssText = 'position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(4,8,16,0.55) 100%);pointer-events:none;';
+      photoHex.appendChild(ov);
+    }
+  };
+  reader.readAsDataURL(file);
+});
+
+// Klik area hex juga buka dialog
+photoHex.addEventListener('click', () => {
+  if (photoHex.querySelector('img')) return; // sudah ada foto, jangan re-open
+  photoInput.click();
+});
+
+// ── TELEMETRY FLICKER ──
+const rpms = ['6,800','7,200','7,500','8,100','7,900'];
+const spds = ['165 km/h','172 km/h','180 km/h','188 km/h','195 km/h'];
+const gears = ['3rd','4th','4th','5th','5th'];
+let ti = 0;
+setInterval(() => {
+  ti = (ti+1) % rpms.length;
+  const r = document.getElementById('telRpm');
+  const s = document.getElementById('telSpd');
+  const g = document.getElementById('telGear');
+  if(r) r.textContent = rpms[ti];
+  if(s) s.textContent = spds[ti];
+  if(g) g.textContent = gears[ti];
+}, 1800);
+
+// ── FADING SLIDER ──
+(function() {
+  const slides   = document.querySelectorAll('.fslide');
+  const dotsWrap = document.getElementById('fsDots');
+  const bar      = document.getElementById('fsProgressBar');
+  const prevBtn  = document.getElementById('fsPrev');
+  const nextBtn  = document.getElementById('fsNext');
+  const DURATION = 5000; // ms per slide
+  let current = 0, timer = null, progTimer = null, progStart = null;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'fslide-dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(d);
+  });
+  const dots = dotsWrap.querySelectorAll('.fslide-dot');
+
+  function goTo(idx) {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (idx + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    resetProgress();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  prevBtn.addEventListener('click', () => { prev(); });
+  nextBtn.addEventListener('click', () => { next(); });
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'ArrowLeft')  prev();
+  });
+
+  // Progress bar animation
+  function resetProgress() {
+    clearInterval(timer);
+    cancelAnimationFrame(progTimer);
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+    progStart = performance.now();
+
+    function frame(now) {
+      const elapsed = now - progStart;
+      const pct = Math.min((elapsed / DURATION) * 100, 100);
+      bar.style.width = pct + '%';
+      if (pct < 100) {
+        progTimer = requestAnimationFrame(frame);
+      } else {
+        next();
+      }
+    }
+    requestAnimationFrame(() => { progTimer = requestAnimationFrame(frame); });
+  }
+
+  // Pause on hover
+  const sliderEl = document.getElementById('brand-slider');
+  sliderEl.addEventListener('mouseenter', () => {
+    cancelAnimationFrame(progTimer);
+  });
+  sliderEl.addEventListener('mouseleave', () => {
+    progStart = performance.now() - (parseFloat(bar.style.width) / 100) * DURATION;
+    function frame(now) {
+      const elapsed = now - progStart;
+      const pct = Math.min((elapsed / DURATION) * 100, 100);
+      bar.style.width = pct + '%';
+      if (pct < 100) progTimer = requestAnimationFrame(frame);
+      else next();
+    }
+    progTimer = requestAnimationFrame(frame);
+  });
+
+  // Touch/swipe support
+  let touchX = 0;
+  sliderEl.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, {passive:true});
+  sliderEl.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) dx < 0 ? next() : prev();
+  });
+
+  resetProgress();
+})();
+
+// ── GALLERY FILTER ──
+const filterBtns = document.querySelectorAll('.gal-filter-btn');
+const galItems   = document.querySelectorAll('.gallery-grid .gal-item:not(.gal-upload)');
+
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    galItems.forEach(item => {
+      const cat = item.dataset.cat || 'all';
+      const show = filter === 'all' || cat === filter;
+      item.style.opacity    = show ? '1' : '0.2';
+      item.style.transform  = show ? '' : 'scale(0.9)';
+      item.style.pointerEvents = show ? '' : 'none';
+      item.style.transition = 'opacity 0.35s, transform 0.35s';
+    });
+  });
+});
+
+// ── LIGHTBOX ──
+const lightbox = document.getElementById('lightbox');
+const lbContent = document.getElementById('lightboxContent');
+const lbCaption = document.getElementById('lightboxCaption');
+
+function openLightbox(el) {
+  const title = el.dataset.title || '';
+  const sub   = el.dataset.sub   || '';
+  // Check if there's an uploaded image on this item
+  const existingImg = el.querySelector('img');
+  lbContent.innerHTML = '';
+  if (existingImg) {
+    const img = document.createElement('img');
+    img.src = existingImg.src;
+    lbContent.appendChild(img);
+    lbContent.style.width = '';
+    lbContent.style.height = '';
+  } else {
+    lbContent.className = 'lightbox-placeholder';
+    lbContent.innerHTML = `
+      <span class="lp-emoji">${el.querySelector('.gal-emoji')?.textContent || '🔍'}</span>
+      <div class="lp-title">${title}</div>
+      <div class="lp-sub">// ${sub}</div>`;
+  }
+  lbCaption.textContent = title ? `// ${title.toUpperCase()} · ${sub.toUpperCase()}` : '';
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(e) {
+  if (e && e.target !== lightbox && !e.target.classList.contains('lightbox-close')) return;
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLightbox({target:lightbox}); });
+
+// ── GALLERY UPLOAD ──
+const galUploadInput = document.getElementById('galUploadInput');
+const galGrid = document.getElementById('galleryGrid');
+const galUploadSlot = galGrid ? galGrid.querySelector('.gal-upload') : null;
+
+galUploadInput && galUploadInput.addEventListener('change', e => {
+  Array.from(e.target.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const newItem = document.createElement('div');
+      newItem.className = 'gal-item gal-bg-1';
+      newItem.dataset.cat   = 'build';
+      newItem.dataset.title = file.name.replace(/\.[^.]+$/, '');
+      newItem.dataset.sub   = 'Custom Upload';
+      newItem.innerHTML = `
+        <img src="${ev.target.result}" alt="${file.name}"
+          style="width:100%;height:100%;object-fit:cover;display:block;"/>
+        <div class="gal-overlay">
+          <div class="gal-overlay-title">${file.name.replace(/\.[^.]+$/, '')}</div>
+          <div class="gal-overlay-sub">Custom Upload</div>
+          <div class="gal-overlay-tag">MY GARAGE</div>
+        </div>`;
+      newItem.addEventListener('click', () => openLightbox(newItem));
+      newItem.addEventListener('mouseenter', () => newItem.style.transform = 'scale(0.985)');
+      newItem.addEventListener('mouseleave', () => newItem.style.transform = '');
+      // Insert before upload slot
+      if (galUploadSlot) galGrid.insertBefore(newItem, galUploadSlot);
+      else galGrid.appendChild(newItem);
+    };
+    reader.readAsDataURL(file);
+  });
+  galUploadInput.value = '';
+});
+
+
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').style.boxShadow =
+    window.scrollY > 50 ? '0 4px 40px rgba(0,0,0,0.5)' : 'none';
+});
+
+// ── SLIDE PHOTO UPLOADS (Radi Photo Garage) ──
+[1, 2, 3, 4].forEach(n => {
+  const input = document.getElementById('slidePhotoInput' + n);
+  const frame = document.getElementById('slidePhotoFrame' + n);
+  const placeholder = document.getElementById('slidePhotoPlaceholder' + n);
+  if (!input || !frame) return;
+
+  input.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      placeholder && placeholder.remove();
+      let img = frame.querySelector('img');
+      if (!img) {
+        img = document.createElement('img');
+        frame.prepend(img);
+      }
+      img.src = ev.target.result;
+      img.alt = 'Radi Photo Garage ' + n;
+      // disable click-to-reopen after photo set
+      frame.onclick = null;
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
+// ── VIDEO UPLOADS ──
+[1, 2, 3].forEach(n => {
+  const input = document.getElementById('videoInput' + n);
+  const card  = document.getElementById('videoCard' + n);
+  const thumb = document.getElementById('videoThumb' + n);
+  const ph    = document.getElementById('videoPlaceholder' + n);
+  const sub   = card ? card.querySelector('.video-meta-sub') : null;
+  if (!input || !card) return;
+
+  // Click anywhere on card (when no video yet) opens picker
+  card.addEventListener('click', e => {
+    if (card.classList.contains('has-video')) return;
+    if (e.target.classList.contains('video-upload-btn')) return;
+    input.click();
+  });
+
+  input.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    ph && ph.remove();
+
+    // Remove old video if any
+    const oldVid = thumb.querySelector('video');
+    if (oldVid) { URL.revokeObjectURL(oldVid.src); oldVid.remove(); }
+
+    const vid = document.createElement('video');
+    vid.src = url;
+    vid.muted = true;       // wajib untuk autoplay browser policy
+    vid.loop = true;
+    vid.preload = 'metadata';
+    vid.playsInline = true;
+    vid.controls = false;   // sembunyikan controls, hover yang kontrol
+    vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;';
+    thumb.prepend(vid);
+
+    card.classList.add('has-video');
+    if (sub) sub.textContent = '// ' + file.name.replace(/\.[^.]+$/, '').toUpperCase();
+
+    // Autoplay muted saat hover, pause saat mouse pergi
+    card.addEventListener('mouseenter', () => { vid.play().catch(() => {}); });
+    card.addEventListener('mouseleave', () => { vid.pause(); vid.currentTime = 0; });
+  });
+});
+</script>
+</body>
+</html>
