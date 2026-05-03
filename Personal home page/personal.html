@@ -1148,14 +1148,17 @@
         <div class="photo-ring2"></div>
 
         <!-- Frame hexagon — isi foto langsung via src saat coding -->
-        <div class="photo-hex" id="photoHex">
-          <img src="foto profil.jpeg" alt="Warraney William Timbuleng" id="profileImg"
-            style="width:100%;height:100%;object-fit:cover;object-position:center top;display:none;"/>
-          <div class="photo-placeholder" id="photoPlaceholder">
-            <span class="ph-icon">👨‍💻</span>
-            <span class="ph-text">Foto Profile</span>
-          </div>
-        </div>
+<div class="photo-hex" id="photoHex">
+  <!-- display:none dihapus agar gambar muncul -->
+  <img src="foto profil.jpeg" alt="Warraney William Timbuleng" id="profileImg"
+    style="width:100%; height:100%; object-fit:cover; object-position:center top;" />
+  
+  <!-- Placeholder disembunyikan (display:none) karena foto sudah ada -->
+  <div class="photo-placeholder" id="photoPlaceholder" style="display:none;">
+    <span class="ph-icon">👨‍💻</span>
+    <span class="ph-text">Foto Profile</span>
+  </div>
+</div>
 
         <div class="photo-brackets">
           <div class="bracket bracket-tl"></div>
