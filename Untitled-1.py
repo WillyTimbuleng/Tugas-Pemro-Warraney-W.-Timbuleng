@@ -1,0 +1,1 @@
+print ("yuki yuki yuki yuni PUKIIIIIIIIII")
